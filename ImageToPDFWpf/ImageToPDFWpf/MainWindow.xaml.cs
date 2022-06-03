@@ -19,6 +19,7 @@ using PdfSharp;
 using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
+using System.Text.RegularExpressions;
 
 namespace ImageToPDFWpf
 {
@@ -200,6 +201,66 @@ namespace ImageToPDFWpf
         {
             Properties.Settings.Default.WidthSetting = WidthSettingComboBox.SelectedIndex;
             Properties.Settings.Default.Save();
+        }
+     
+        //Move selected item up the list
+        private void MoveUpArrowButton_Click(object sender, RoutedEventArgs e)
+        {
+            int SelectedIndex = ImageFilesListBox.SelectedIndex;
+            //check if the item is already at the top
+            if (SelectedIndex != 0)
+            {
+                string FileToInsert = ImageFilesListBox.Items[SelectedIndex].ToString();
+                ImageFilesListBox.Items.RemoveAt(SelectedIndex);
+                ImageFilesListBox.Items.Insert(SelectedIndex - 1, FileToInsert);
+                //put selection back
+                ImageFilesListBox.SelectedIndex = SelectedIndex - 1;
+            }
+        }
+        
+        //Move selected item down the list
+        private void MoveDownArrowButton_Click(object sender, RoutedEventArgs e)
+        {
+            int SelectedIndex = ImageFilesListBox.SelectedIndex;
+            //check if the item is already at the bottom
+            if (SelectedIndex != ImageFilesListBox.Items.Count - 1)
+            {
+                string FileToInsert = ImageFilesListBox.Items[SelectedIndex].ToString();
+                ImageFilesListBox.Items.Insert(SelectedIndex + 2, FileToInsert);
+                ImageFilesListBox.Items.RemoveAt(SelectedIndex);
+                //put selection back
+                ImageFilesListBox.SelectedIndex = SelectedIndex + 1;
+            }
+        }
+
+        //detect if delete key was pressed in selection window
+        private void ImageFilesListBox_KeyDown(object sender, KeyEventArgs e)
+        {
+            //if delete key pressed treat the same as the remove button
+            if (e.Key == Key.Delete)
+            {
+                RemoveFileButton_Click(sender, e);
+            }
+        }
+
+        //Handle files being dropped into listbox
+        private void ImageFilesListBox_Drop(object sender, DragEventArgs e)
+        {
+            //check if files are being dropped
+            if(e.Data.GetDataPresent(DataFormats.FileDrop))
+            {
+                string[] FileNames = (string[])e.Data.GetData(DataFormats.FileDrop);
+                //Add each file to the list
+                foreach(string file in FileNames)
+                {
+                    //check that the file is a supported image type
+                    if(Regex.IsMatch(file, @"(\.bmp)|(\.png)|(\.gif)|(\.jpg)|(\.tif)|(\.pdf)", RegexOptions.IgnoreCase) == true)
+                    {
+                        //add if allowed
+                        ImageFilesListBox.Items.Add(file);
+                    }
+                }
+            }
         }
 
         enum WidthSetting
