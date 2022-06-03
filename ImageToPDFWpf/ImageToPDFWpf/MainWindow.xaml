@@ -12,8 +12,8 @@
         <Button x:Name="SelectOutputButton" Content="Select Output" HorizontalAlignment="Right" Margin="0,26,10,0" VerticalAlignment="Top" Width="88" Height="23" Click="SelectOutputButton_Click"/>
         <Button x:Name="SelectFilesToConvertButton" Content="Select Files To Convert" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" Width="139" RenderTransformOrigin="0.5,0.5" Click="SelectFilesToConvertButton_Click" Height="23"/>
         <Button x:Name="RemoveFileButton" Content="X" HorizontalAlignment="Right" Margin="0,103,10,0" VerticalAlignment="Top" Height="23" Click="RemoveFileButton_Click" Width="23"/>
-        <TextBox x:Name="OutputFileNameTextBox" Height="23" Margin="10,26,103,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
-        <TextBox x:Name="OutputTitleTextBox" Height="23" Margin="10,75,10,0" TextWrapping="Wrap" VerticalAlignment="Top"/>
+        <TextBox x:Name="OutputFileNameTextBox" Height="23" Margin="10,26,103,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="OutputTitleTextBox" Height="23" Margin="10,75,10,0" VerticalAlignment="Top"/>
         <ListBox x:Name="ImageFilesListBox" Margin="10,131,10,64" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionMode="Extended" KeyDown="ImageFilesListBox_KeyDown" AllowDrop="True" Drop="ImageFilesListBox_Drop"/>
         <ComboBox x:Name="WidthSettingComboBox" HorizontalAlignment="Left" Margin="154,103,0,0" VerticalAlignment="Top" SelectedIndex="0" Height="23" Width="149">
             <System:String>Preserve Image Widths</System:String>
