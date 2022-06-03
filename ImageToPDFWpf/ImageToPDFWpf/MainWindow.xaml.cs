@@ -32,6 +32,7 @@ namespace ImageToPDFWpf
         public MainWindow()
         {
             InitializeComponent();
+            WidthSettingComboBox.SelectedIndex = Properties.Settings.Default.WidthSetting;
         }
 
         //Begin conversion process
@@ -63,13 +64,14 @@ namespace ImageToPDFWpf
             string filename = OutputFileNameTextBox.Text;
             string title = OutputTitleTextBox.Text;
             bool openafter = (bool)OpenAfterCheckBox.IsChecked;
+            WidthSetting widthoption = (WidthSetting)WidthSettingComboBox.SelectedIndex;
 
-            ConvertTask = new Task(() => { ConvertImagesToPDF(title, filename, images, openafter); });
+            ConvertTask = new Task(() => { ConvertImagesToPDF(title, filename, images, openafter,widthoption); });
             ConvertTask.Start();
         }
 
         //Convert the images to a single PDF
-        private void ConvertImagesToPDF(string Title,string FileName,string[] ImagesFiles,bool OpenAfter)
+        private void ConvertImagesToPDF(string Title,string FileName,string[] ImagesFiles,bool OpenAfter,WidthSetting WidthOption)
         {
             //Reset progress bar
             this.Dispatcher.Invoke(() => { ConversionProgressBar.Value = 0; });
@@ -77,6 +79,28 @@ namespace ImageToPDFWpf
             // Create a new PDF document
             PdfDocument document = new PdfDocument();
             document.Info.Title = Title;
+
+            //find target width setting if requested
+            double TargetWidth = -1;
+            if (WidthOption != WidthSetting.PreserveWidth)
+            {
+                foreach (string ImageFile in ImagesFiles)
+                {
+                    XImage image = XImage.FromFile(ImageFile);
+                    if (TargetWidth < 0)
+                    {
+                        TargetWidth = image.PointWidth;
+                    }
+                    if(image.PointWidth < TargetWidth && WidthOption == WidthSetting.ShrinkToNarrowest)
+                    {
+                        TargetWidth = image.PointWidth;
+                    }
+                    if(image.PointWidth > TargetWidth && WidthOption == WidthSetting.ExpandToWidest)
+                    {
+                        TargetWidth = image.PointWidth;
+                    }
+                }
+            }
 
             // Add each image to its own page in the PDF 
             foreach (string ImageFile in ImagesFiles)
@@ -87,13 +111,23 @@ namespace ImageToPDFWpf
                 //Open image
                 XImage image = XImage.FromFile(ImageFile);
 
+                //figure resize the image if requested
+                double OrginalWidth = image.PointWidth;
+                double NewWidth = OrginalWidth;
+                double NewHeight = image.PointHeight;
+                if (WidthOption != WidthSetting.PreserveWidth)
+                {
+                    NewWidth = TargetWidth;
+                }
+                NewHeight = image.PointHeight * (NewWidth / OrginalWidth);
+
                 //Set page as same size as image
-                page.Width = image.PointWidth;
-                page.Height = image.PointHeight;
+                page.Width = NewWidth;
+                page.Height = NewHeight;
 
                 //put image on page
                 XGraphics gfx = XGraphics.FromPdfPage(page);
-                gfx.DrawImage(image, 0, 0);
+                gfx.DrawImage(image, 0, 0,NewWidth,NewHeight);
 
                 //update progress bar
                 this.Dispatcher.Invoke(() => { ConversionProgressBar.Value = ConversionProgressBar.Value + ConversionProgressBar.Maximum/ImagesFiles.Count(); });
@@ -159,6 +193,20 @@ namespace ImageToPDFWpf
             {
                 ImageFilesListBox.Items.Remove(FilesToRemove[i]);
             }
+        }
+
+        //Save settings
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        {
+            Properties.Settings.Default.WidthSetting = WidthSettingComboBox.SelectedIndex;
+            Properties.Settings.Default.Save();
+        }
+
+        enum WidthSetting
+        {
+            PreserveWidth = 0,
+            ShrinkToNarrowest,
+            ExpandToWidest
         }
     }
 }
