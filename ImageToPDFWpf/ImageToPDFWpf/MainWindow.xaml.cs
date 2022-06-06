@@ -83,10 +83,6 @@ namespace ImageToPDFWpf
 
             //find target width setting if requested
             double TargetWidth = -1;
-
-            var watch = new Stopwatch();
-            watch.Start();
-
             if (WidthOption != WidthSetting.PreserveWidth)
             {
                 foreach (string ImageFile in ImagesFiles)
@@ -111,8 +107,6 @@ namespace ImageToPDFWpf
                     this.Dispatcher.Invoke(() => { ConversionProgressBar.Value = ConversionProgressBar.Value + 0.27 * ConversionProgressBar.Maximum / ImagesFiles.Count(); });
                 }
             }
-
-            long widthchecktime = watch.ElapsedMilliseconds;
 
             // Add each image to its own page in the PDF 
             foreach (string ImageFile in ImagesFiles)
@@ -142,7 +136,6 @@ namespace ImageToPDFWpf
                     gfx.DrawImage(image, 0, 0, NewWidth, NewHeight);
                 }
 
-
                 //update progress bar
                 this.Dispatcher.Invoke(() => {
                     if (WidthOption != WidthSetting.PreserveWidth)
@@ -155,8 +148,6 @@ namespace ImageToPDFWpf
                     }
                 });
             }
-
-            long totaltime = watch.ElapsedMilliseconds;
 
             // Save the document...
             document.Save(FileName);
@@ -232,7 +223,7 @@ namespace ImageToPDFWpf
         {
             int SelectedIndex = ImageFilesListBox.SelectedIndex;
             //check if the item is already at the top
-            if (SelectedIndex != 0)
+            if (SelectedIndex > 0)
             {
                 string FileToInsert = ImageFilesListBox.Items[SelectedIndex].ToString();
                 ImageFilesListBox.Items.RemoveAt(SelectedIndex);
