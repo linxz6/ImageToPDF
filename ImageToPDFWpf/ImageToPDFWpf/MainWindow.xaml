@@ -12,6 +12,8 @@
         <Button x:Name="SelectOutputButton" Content="Select Output" HorizontalAlignment="Right" Margin="0,26,10,0" VerticalAlignment="Top" Width="88" Height="23" Click="SelectOutputButton_Click"/>
         <Button x:Name="SelectFilesToConvertButton" Content="Select Files To Convert" HorizontalAlignment="Left" Margin="10,103,0,0" VerticalAlignment="Top" Width="139" RenderTransformOrigin="0.5,0.5" Click="SelectFilesToConvertButton_Click" Height="23"/>
         <Button x:Name="RemoveFileButton" Content="X" HorizontalAlignment="Right" Margin="0,103,10,0" VerticalAlignment="Top" Height="23" Click="RemoveFileButton_Click" Width="23"/>
+        <Button x:Name="MoveUpArrowButton" Content="↑" HorizontalAlignment="Right" Margin="0,103,66,0" Width="23" Click="MoveUpArrowButton_Click" VerticalAlignment="Top" Height="23"/>
+        <Button x:Name="MoveDownArrowButton" Content="↓" HorizontalAlignment="Right" Margin="0,103,38,0" VerticalAlignment="Top" Width="23" Height="23" Click="MoveDownArrowButton_Click" RenderTransformOrigin="1.348,0.217"/>
         <TextBox x:Name="OutputFileNameTextBox" Height="23" Margin="10,26,103,0" VerticalAlignment="Top"/>
         <TextBox x:Name="OutputTitleTextBox" Height="23" Margin="10,75,10,0" VerticalAlignment="Top"/>
         <ListBox x:Name="ImageFilesListBox" Margin="10,131,10,64" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionMode="Extended" KeyDown="ImageFilesListBox_KeyDown" AllowDrop="True" Drop="ImageFilesListBox_Drop"/>
@@ -24,8 +26,6 @@
         <CheckBox x:Name="OpenAfterCheckBox" Content="Open When Done" HorizontalAlignment="Left" Margin="154,0,0,13" VerticalAlignment="Bottom"/>
         <Label x:Name="OutputFileLabel" Content="Output Location" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.947,0"/>
         <Label x:Name="OutputTiltleLabel" Content="Output Title" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top"/>
-        <Button x:Name="MoveUpArrowButton" Content="↑" HorizontalAlignment="Right" Margin="0,103,66,0" Width="23" Click="MoveUpArrowButton_Click" VerticalAlignment="Top" Height="23"/>
-        <Button x:Name="MoveDownArrowButton" Content="↓" HorizontalAlignment="Right" Margin="0,103,38,0" VerticalAlignment="Top" Width="23" Height="23" Click="MoveDownArrowButton_Click" RenderTransformOrigin="1.348,0.217"/>
 
     </Grid>
 </Window>

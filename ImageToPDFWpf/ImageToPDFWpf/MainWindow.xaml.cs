@@ -87,18 +87,20 @@ namespace ImageToPDFWpf
             {
                 foreach (string ImageFile in ImagesFiles)
                 {
-                    XImage image = XImage.FromFile(ImageFile);
-                    if (TargetWidth < 0)
+                    using (XImage image = XImage.FromFile(ImageFile))
                     {
-                        TargetWidth = image.PointWidth;
-                    }
-                    if(image.PointWidth < TargetWidth && WidthOption == WidthSetting.ShrinkToNarrowest)
-                    {
-                        TargetWidth = image.PointWidth;
-                    }
-                    if(image.PointWidth > TargetWidth && WidthOption == WidthSetting.ExpandToWidest)
-                    {
-                        TargetWidth = image.PointWidth;
+                        if (TargetWidth < 0)
+                        {
+                            TargetWidth = image.PointWidth;
+                        }
+                        if (image.PointWidth < TargetWidth && WidthOption == WidthSetting.ShrinkToNarrowest)
+                        {
+                            TargetWidth = image.PointWidth;
+                        }
+                        if (image.PointWidth > TargetWidth && WidthOption == WidthSetting.ExpandToWidest)
+                        {
+                            TargetWidth = image.PointWidth;
+                        }
                     }
                 }
             }
@@ -110,25 +112,26 @@ namespace ImageToPDFWpf
                 PdfPage page = document.AddPage();
 
                 //Open image
-                XImage image = XImage.FromFile(ImageFile);
-
-                //figure resize the image if requested
-                double OrginalWidth = image.PointWidth;
-                double NewWidth = OrginalWidth;
-                double NewHeight = image.PointHeight;
-                if (WidthOption != WidthSetting.PreserveWidth)
+                using (XImage image = XImage.FromFile(ImageFile))
                 {
-                    NewWidth = TargetWidth;
+                    //figure resize the image if requested
+                    double OrginalWidth = image.PointWidth;
+                    double NewWidth = OrginalWidth;
+                    double NewHeight = image.PointHeight;
+                    if (WidthOption != WidthSetting.PreserveWidth)
+                    {
+                        NewWidth = TargetWidth;
+                    }
+                    NewHeight = image.PointHeight * (NewWidth / OrginalWidth);
+
+                    //Set page as same size as image
+                    page.Width = NewWidth;
+                    page.Height = NewHeight;
+
+                    //put image on page
+                    XGraphics gfx = XGraphics.FromPdfPage(page);
+                    gfx.DrawImage(image, 0, 0, NewWidth, NewHeight);
                 }
-                NewHeight = image.PointHeight * (NewWidth / OrginalWidth);
-
-                //Set page as same size as image
-                page.Width = NewWidth;
-                page.Height = NewHeight;
-
-                //put image on page
-                XGraphics gfx = XGraphics.FromPdfPage(page);
-                gfx.DrawImage(image, 0, 0,NewWidth,NewHeight);
 
                 //update progress bar
                 this.Dispatcher.Invoke(() => { ConversionProgressBar.Value = ConversionProgressBar.Value + ConversionProgressBar.Maximum/ImagesFiles.Count(); });
