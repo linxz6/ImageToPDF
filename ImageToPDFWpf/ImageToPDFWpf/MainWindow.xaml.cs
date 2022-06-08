@@ -20,6 +20,7 @@ using PdfSharp.Drawing;
 using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using System.Text.RegularExpressions;
+using Emgu.CV;
 
 namespace ImageToPDFWpf
 {
@@ -34,6 +35,8 @@ namespace ImageToPDFWpf
         {
             InitializeComponent();
             WidthSettingComboBox.SelectedIndex = Properties.Settings.Default.WidthSetting;
+            SetWidthTextBox.Text = Properties.Settings.Default.SetWidthSetting;
+            OpenAfterCheckBox.IsChecked = Properties.Settings.Default.OpenAfterSetting;
         }
 
         //Begin conversion process
@@ -64,15 +67,27 @@ namespace ImageToPDFWpf
             }
             string filename = OutputFileNameTextBox.Text;
             string title = OutputTitleTextBox.Text;
-            bool openafter = (bool)OpenAfterCheckBox.IsChecked;
+            bool openafter = (bool)OpenAfterCheckBox.IsChecked;                
             WidthSetting widthoption = (WidthSetting)WidthSettingComboBox.SelectedIndex;
-
-            ConvertTask = new Task(() => { ConvertImagesToPDF(title, filename, images, openafter,widthoption); });
+            double setwidth = 0;
+            if (widthoption == WidthSetting.SetWidth)
+            {
+                try
+                {
+                    setwidth = Convert.ToDouble(SetWidthTextBox.Text);
+                }
+                catch(Exception Ex)
+                {
+                    MessageBox.Show("Failed to parse number of pixels: " + Ex.Message);
+                    return;
+                }
+            }
+            ConvertTask = new Task(() => { ConvertImagesToPDF(title, filename, images, openafter, setwidth, widthoption); });
             ConvertTask.Start();
         }
 
         //Convert the images to a single PDF
-        private void ConvertImagesToPDF(string Title,string FileName,string[] ImagesFiles,bool OpenAfter,WidthSetting WidthOption)
+        private void ConvertImagesToPDF(string Title,string OutputFileName,string[] ImagesFiles,bool OpenAfter,double SetWidth,WidthSetting WidthOption)
         {
             //Reset progress bar
             this.Dispatcher.Invoke(() => { ConversionProgressBar.Value = 0; });
@@ -83,62 +98,78 @@ namespace ImageToPDFWpf
 
             //find target width setting if requested
             double TargetWidth = -1;
-            if (WidthOption != WidthSetting.PreserveWidth)
+            if (WidthOption == WidthSetting.ExpandToWidest || WidthOption == WidthSetting.ShrinkToNarrowest)
             {
                 foreach (string ImageFile in ImagesFiles)
                 {
                     using (XImage image = XImage.FromFile(ImageFile))
                     {
-                        if (TargetWidth < 0)
+                        if (TargetWidth <= 0)
                         {
-                            TargetWidth = image.PointWidth;
+                            TargetWidth = image.PixelWidth;
                         }
-                        if (image.PointWidth < TargetWidth && WidthOption == WidthSetting.ShrinkToNarrowest)
+                        if (image.PixelWidth < TargetWidth && WidthOption == WidthSetting.ShrinkToNarrowest)
                         {
-                            TargetWidth = image.PointWidth;
+                            TargetWidth = image.PixelWidth;
                         }
-                        if (image.PointWidth > TargetWidth && WidthOption == WidthSetting.ExpandToWidest)
+                        if (image.PixelWidth > TargetWidth && WidthOption == WidthSetting.ExpandToWidest)
                         {
-                            TargetWidth = image.PointWidth;
+                            TargetWidth = image.PixelWidth;
                         }
+                        
                     }
 
                     //update progress bar
                     this.Dispatcher.Invoke(() => { ConversionProgressBar.Value = ConversionProgressBar.Value + 0.27 * ConversionProgressBar.Maximum / ImagesFiles.Count(); });
                 }
             }
+            if (WidthOption == WidthSetting.SetWidth)
+            {
+                TargetWidth = SetWidth;
+            }
 
             // Add each image to its own page in the PDF 
+            int i = 0;
             foreach (string ImageFile in ImagesFiles)
             {
                 // Create an empty page
                 PdfPage page = document.AddPage();
+                string FinalImageFile = ImageFile;
+
+                //change image file size if requested 
+                if (WidthOption != WidthSetting.PreserveWidth)
+                {
+                    Mat OriginImage = CvInvoke.Imread(ImageFile);
+                    Mat FinalImage = new Mat();
+                    double ScaleFactor = TargetWidth / OriginImage.Width;
+                    if (ScaleFactor <= 1.0)
+                    {
+                        CvInvoke.Resize(OriginImage, FinalImage, new System.Drawing.Size(), ScaleFactor, ScaleFactor, Emgu.CV.CvEnum.Inter.Area);
+                    }
+                    else
+                    {
+                        CvInvoke.Resize(OriginImage, FinalImage, new System.Drawing.Size(), ScaleFactor, ScaleFactor, Emgu.CV.CvEnum.Inter.Cubic);
+                    }
+
+                    CvInvoke.Imwrite("ScratchFile" + i.ToString() +".jpg", FinalImage);
+                    FinalImageFile = "ScratchFile" + i.ToString() + ".jpg";
+                    i++;
+                } 
 
                 //Open image
-                using (XImage image = XImage.FromFile(ImageFile))
+                using (XImage image = XImage.FromFile(FinalImageFile))
                 {
-                    //figure resize the image if requested
-                    double OrginalWidth = image.PointWidth;
-                    double NewWidth = OrginalWidth;
-                    double NewHeight = image.PointHeight;
-                    if (WidthOption != WidthSetting.PreserveWidth)
-                    {
-                        NewWidth = TargetWidth;
-                    }
-                    NewHeight = image.PointHeight * (NewWidth / OrginalWidth);
-
                     //Set page as same size as image
-                    page.Width = NewWidth;
-                    page.Height = NewHeight;
-
+                    page.Width = image.PointWidth;
+                    page.Height = image.PointHeight;
                     //put image on page
                     XGraphics gfx = XGraphics.FromPdfPage(page);
-                    gfx.DrawImage(image, 0, 0, NewWidth, NewHeight);
+                    gfx.DrawImage(image, 0, 0);
                 }
 
                 //update progress bar
                 this.Dispatcher.Invoke(() => {
-                    if (WidthOption != WidthSetting.PreserveWidth)
+                    if (WidthOption == WidthSetting.ExpandToWidest || WidthOption == WidthSetting.ShrinkToNarrowest)
                     {
                         ConversionProgressBar.Value = ConversionProgressBar.Value + 0.73 * ConversionProgressBar.Maximum / ImagesFiles.Count();
                     }
@@ -150,12 +181,22 @@ namespace ImageToPDFWpf
             }
 
             // Save the document...
-            document.Save(FileName);
+            document.Save(OutputFileName);
 
             // Start a viewer if requested
             if (OpenAfter)
             {                
-                Process.Start(FileName);
+                Process.Start(OutputFileName);
+            }
+
+            //delete the scratch files
+            if(WidthOption != WidthSetting.PreserveWidth)
+            {
+                string[] Scratches = Directory.GetFiles(Directory.GetCurrentDirectory(),"ScratchFile*");
+                foreach(string scratch in Scratches)
+                {
+                    File.Delete(scratch);
+                }
             }
 
             //Clear the UI
@@ -215,6 +256,8 @@ namespace ImageToPDFWpf
         private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             Properties.Settings.Default.WidthSetting = WidthSettingComboBox.SelectedIndex;
+            Properties.Settings.Default.SetWidthSetting = SetWidthTextBox.Text;
+            Properties.Settings.Default.OpenAfterSetting = (bool)OpenAfterCheckBox.IsChecked;
             Properties.Settings.Default.Save();
         }
      
@@ -278,11 +321,25 @@ namespace ImageToPDFWpf
             }
         }
 
+        //hide the set width textbox if set width isn't selected
+        private void WidthSettingComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            if(WidthSettingComboBox.SelectedIndex != 3)
+            {
+                SetWidthTextBox.Visibility = Visibility.Hidden;
+            }
+            else
+            {
+                SetWidthTextBox.Visibility = Visibility.Visible;
+            }
+        }
+
         enum WidthSetting
         {
             PreserveWidth = 0,
             ShrinkToNarrowest,
-            ExpandToWidest
+            ExpandToWidest,
+            SetWidth
         }
     }
 }

@@ -34,5 +34,29 @@ namespace ImageToPDFWpf.Properties {
                 this["WidthSetting"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1280")]
+        public string SetWidthSetting {
+            get {
+                return ((string)(this["SetWidthSetting"]));
+            }
+            set {
+                this["SetWidthSetting"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool OpenAfterSetting {
+            get {
+                return ((bool)(this["OpenAfterSetting"]));
+            }
+            set {
+                this["OpenAfterSetting"] = value;
+            }
+        }
     }
 }

@@ -16,11 +16,13 @@
         <Button x:Name="MoveDownArrowButton" Content="↓" HorizontalAlignment="Right" Margin="0,103,38,0" VerticalAlignment="Top" Width="23" Height="23" Click="MoveDownArrowButton_Click" RenderTransformOrigin="1.348,0.217"/>
         <TextBox x:Name="OutputFileNameTextBox" Height="23" Margin="10,26,103,0" VerticalAlignment="Top"/>
         <TextBox x:Name="OutputTitleTextBox" Height="23" Margin="10,75,10,0" VerticalAlignment="Top"/>
+        <TextBox x:Name="SetWidthTextBox" HorizontalAlignment="Left" Height="23" Margin="308,103,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="54"/>
         <ListBox x:Name="ImageFilesListBox" Margin="10,131,10,64" ScrollViewer.HorizontalScrollBarVisibility="Visible" ScrollViewer.VerticalScrollBarVisibility="Visible" SelectionMode="Extended" KeyDown="ImageFilesListBox_KeyDown" AllowDrop="True" Drop="ImageFilesListBox_Drop"/>
-        <ComboBox x:Name="WidthSettingComboBox" HorizontalAlignment="Left" Margin="154,103,0,0" VerticalAlignment="Top" SelectedIndex="0" Height="23" Width="149">
+        <ComboBox x:Name="WidthSettingComboBox" HorizontalAlignment="Left" Margin="154,103,0,0" VerticalAlignment="Top" SelectedIndex="0" Height="23" Width="149" SelectionChanged="WidthSettingComboBox_SelectionChanged">
             <System:String>Preserve Image Widths</System:String>
             <System:String>Shrink To Narrowest</System:String>
             <System:String>Expand To Widest</System:String>
+            <System:String>Set Width (Pixels)</System:String>
         </ComboBox>
         <ProgressBar x:Name="ConversionProgressBar" Height="20" Margin="10,0,10,39" VerticalAlignment="Bottom"/>
         <CheckBox x:Name="OpenAfterCheckBox" Content="Open When Done" HorizontalAlignment="Left" Margin="154,0,0,13" VerticalAlignment="Bottom"/>
