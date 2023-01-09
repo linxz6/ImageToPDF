@@ -27,7 +27,7 @@
         <ProgressBar x:Name="ConversionProgressBar" Height="20" Margin="10,0,10,39" VerticalAlignment="Bottom"/>
         <CheckBox x:Name="OpenAfterCheckBox" Content="Open When Done" HorizontalAlignment="Left" Margin="154,0,0,13" VerticalAlignment="Bottom"/>
         <Label x:Name="OutputFileLabel" Content="Output Location" HorizontalAlignment="Left" Margin="10,0,0,0" VerticalAlignment="Top" RenderTransformOrigin="-0.947,0"/>
-        <Label x:Name="OutputTiltleLabel" Content="Output Title" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top"/>
+        <Label x:Name="OutputTiltleLabel" Content="Output Title (MetaData Title)" HorizontalAlignment="Left" Margin="10,49,0,0" VerticalAlignment="Top"/>
 
     </Grid>
 </Window>
