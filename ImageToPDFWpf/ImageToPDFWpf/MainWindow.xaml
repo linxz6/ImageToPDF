@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:ImageToPDFWpf"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="ImageToPDFWpf.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="706.362" Width="577.608" Background="#FFEAEAEA" Icon="Windows Logo.png" Closing="Window_Closing">
+        Title="Image To PDF Convertor" Height="700" Width="575" Background="#FFEAEAEA" Icon="Windows Logo.png" Closing="Window_Closing" MinWidth="420" MinHeight="400">
     <Grid>
         <Button x:Name="ConvertImagesButton" Content="Convert Images" HorizontalAlignment="Left" Margin="10,0,0,10" VerticalAlignment="Bottom" Width="139" Click="ConvertImagesButton_Click" FontSize="15"/>
         <Button x:Name="SelectOutputButton" Content="Select Output" HorizontalAlignment="Right" Margin="0,26,10,0" VerticalAlignment="Top" Width="88" Height="23" Click="SelectOutputButton_Click"/>
