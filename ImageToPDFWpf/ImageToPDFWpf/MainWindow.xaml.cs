@@ -42,9 +42,19 @@ namespace ImageToPDFWpf
         //Begin conversion process
         private void ConvertImagesButton_Click(object sender, RoutedEventArgs e)
         {
-            if(string.IsNullOrWhiteSpace(OutputFileNameTextBox.Text) == true)
+            //check that the output file name is a valid pdf file name
+            string filename = Regex.Match(OutputFileNameTextBox.Text, @"[^\\]+\.pdf", RegexOptions.IgnoreCase).Value;
+            string filepath = Regex.Replace(OutputFileNameTextBox.Text, @"[^\\]+\.pdf", string.Empty, RegexOptions.IgnoreCase);
+            if(string.IsNullOrWhiteSpace(filename) == true)
             {
-                MessageBox.Show("Input a valid output location/filename.");
+                MessageBox.Show("Input a valid file name");
+                return;
+            }
+
+            //check that output folder exists
+            if(!Directory.Exists(filepath))
+            {
+                MessageBox.Show("Input a valid output folder");
                 return;
             }
 
@@ -65,7 +75,7 @@ namespace ImageToPDFWpf
             {
                 images[i] = ImageFilesListBox.Items[i].ToString();
             }
-            string filename = OutputFileNameTextBox.Text;
+            string filepath_name = OutputFileNameTextBox.Text;
             string title = OutputTitleTextBox.Text;
             bool openafter = (bool)OpenAfterCheckBox.IsChecked;                
             WidthSetting widthoption = (WidthSetting)WidthSettingComboBox.SelectedIndex;
@@ -82,7 +92,7 @@ namespace ImageToPDFWpf
                     return;
                 }
             }
-            ConvertTask = new Task(() => { ConvertImagesToPDF(title, filename, images, openafter, setwidth, widthoption); });
+            ConvertTask = new Task(() => { ConvertImagesToPDF(title, filepath_name, images, openafter, setwidth, widthoption); });
             ConvertTask.Start();
         }
 
